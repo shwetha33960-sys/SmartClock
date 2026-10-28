@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Clock</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-phase="morning">
+  <div class="backdrop"></div>
+  <div id="now-strip" class="now-strip" hidden></div>
+  <div id="sound-hint" class="sound-hint" hidden>Click anywhere once to switch sound on.</div>
+
+  <main class="content">
+    <!-- HOME -->
+    <section id="view-home" class="view active">
+      <div class="stage">
+        <div class="clock-wrap">
+          <svg id="analog" viewBox="-110 -110 220 220" aria-label="Analog clock"></svg>
+        </div>
+        <div class="digital"><span id="d-time">--:--</span><span id="d-sec"></span><span id="d-ampm"></span></div>
+        <div id="d-date" class="d-date"></div>
+        <div id="d-zone" class="d-zone"></div>
+        <div class="tools">
+          <button id="fmt-btn" class="chip">24-hour</button>
+          <button id="set-btn" class="chip">Set time</button>
+          <button id="real-btn" class="chip" hidden>Back to real time</button>
+        </div>
+        <div id="set-panel" class="set-panel" hidden>
+          <input id="set-input" type="time" step="60" aria-label="New time">
+          <button id="set-apply" class="btn primary">Set</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-alarms" class="view">
+      <div class="al-head">
+        <button id="al-edit" class="text-btn">Edit</button>
+        <button id="al-add" class="add-btn" aria-label="Add alarm" title="Add alarm">+</button>
+      </div>
+      <h1>Alarms</h1>
+      <p id="next-alarm" class="muted"></p>
+      <ul id="alarm-list" class="list al-list"></ul>
+    </section>
+
+    <section id="view-timer" class="view">
+        <h1>Timer &amp; Stopwatch</h1>
+        <div class="two-col">
+          <div class="card">
+            <h2>Timer</h2>
+            <div class="ring-wrap">
+              <svg viewBox="0 0 120 120" class="ring-svg">
+                <circle cx="60" cy="60" r="54" class="ring-bg"/>
+                <circle id="timer-ring" cx="60" cy="60" r="54" class="ring-fg"/>
+              </svg>
+              <div id="timer-display" class="ring-text">00:05:00</div>
+            </div>
+            <div class="row center">
+              <label>H <input id="t-h" type="number" min="0" max="99" value="0"></label>
+              <label>M <input id="t-m" type="number" min="0" max="59" value="5"></label>
+              <label>S <input id="t-s" type="number" min="0" max="59" value="0"></label>
+            </div>
+            <div class="row center">
+              <button class="chip" data-preset="60">1 min</button>
+              <button class="chip" data-preset="300">5 min</button>
+              <button class="chip" data-preset="600">10 min</button>
+              <button class="chip" data-preset="1500">25 min</button>
+            </div>
+            <div class="row center">
+              <button id="t-start" class="btn primary">Start</button>
+              <button id="t-reset" class="btn">Reset</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Stopwatch</h2>
+            <div id="sw-display" class="sw-display">00:00.00</div>
+            <div class="row center">
+              <button id="sw-start" class="btn primary">Start</button>
+              <button id="sw-lap" class="btn" disabled>Lap</button>
+              <button id="sw-reset" class="btn">Reset</button>
+            </div>
+            <ol id="sw-laps" class="laps"></ol>
+          </div>
+        </div>
+      </section>
+
+    <section id="view-routines" class="view">
+        <h1>Routine clock</h1>
+        <div id="routine-runner" class="card runner" hidden></div>
+        <div class="row between">
+          <h2>Your routines</h2>
+          <button id="routine-new" class="btn">New routine</button>
+        </div>
+        <div id="routine-editor" class="card form-card" hidden></div>
+        <ul id="routine-list" class="list"></ul>
+      </section>
+
+    <section id="view-wakeup" class="view">
+        <h1>Smart wakeup planner</h1>
+        <p class="muted">Sleep runs in cycles of about 90 minutes. Waking at the end of a cycle is easier than waking in the middle of one. We add 15 minutes for falling asleep.</p>
+        <div class="two-col">
+          <div class="card">
+            <h2>I need to wake up at</h2>
+            <div class="row">
+              <input id="wake-time" type="time" value="06:30">
+              <button id="wake-go" class="btn primary">Find bedtimes</button>
+            </div>
+            <div id="bed-results" class="cards"></div>
+          </div>
+          <div class="card">
+            <h2>I am going to sleep now</h2>
+            <p class="muted small">Bedtime <strong id="bed-now">--:--</strong>. Pick a wake time:</p>
+            <div id="wake-results" class="cards"></div>
+          </div>
+        </div>
+      </section>
+  </main>
+
+  <nav id="dock" class="dock"><button data-view="home" class="active" aria-label="Clock"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Clock</span></button><button data-view="alarms" aria-label="Alarm"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 1.5M4 5l3-2M20 5l-3-2"/></svg><span>Alarm</span></button><button data-view="timer" aria-label="Timer"><svg viewBox="0 0 24 24"><path d="M9 2.5h6M12 2.5V6"/><circle cx="12" cy="14" r="7.5"/><path d="M12 14l3-3"/></svg><span>Timer</span></button><button data-view="routines" aria-label="Routine"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 8.7M20 4v4.7h-4.7M20 12a8 8 0 0 1-13.7 5.6L4 15.3M4 20v-4.7h4.7"/></svg><span>Routine</span></button><button data-view="wakeup" aria-label="Wakeup"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/></svg><span>Wakeup</span></button></nav>
+
+  <div id="al-bar" class="al-bar" hidden>
+        <button id="al-selall" class="chip">Select all</button>
+        <button id="al-del" class="btn danger">Delete</button>
+      </div>
+  <div id="rings"></div>
+  <div id="toasts"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/clock.js"></script>
+  <script src="js/alarms.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/routines.js"></script>
+  <script src="js/wakeup.js"></script>
+  <script>App.start();</script>
+</body>
+</html>
